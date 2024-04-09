@@ -1,109 +1,150 @@
 import React, { useState } from 'react';
+import { FaPlus, FaTrash } from 'react-icons/fa';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
 
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    dob: '',
-    street1: '',
-    street2: '',
-    residentialAddress: ''
-  });
+  const [forms, setForms] = useState([
+    {
+      firstName: "",
+      lastName: "",
+      street1: "",
+      street2: "",
+      email: "",
+      textInput: '',
+      selectInput: '',
+      fileInput: null,
+      dob: '',
+    }
+  ]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prevState => ({
-      ...prevState,
-      [name]: value
-    }));
+  const handleInputChange = (event, index) => {
+    const { name, value } = event.target;
+    const newForms = [...forms];
+    newForms[index] = { ...newForms[index], [name]: value };
+    setForms(newForms);
+
+    if (name === 'dob') {
+      const selectedDate = new Date(value);
+      const today = new Date();
+      const ageDiff = today.getFullYear() - selectedDate.getFullYear();
+      const monthDiff = today.getMonth() - selectedDate.getMonth();
+      const isOver18 = ageDiff > 18 || (ageDiff === 18 && monthDiff >= 0);
+
+      if (!isOver18) {
+        console.log('Age must be greater than 18');
+        alert('Age must be greater than 18');
+
+      }
+    }
+
+  };
+
+  const handleFileChange = (e, index) => {
+    const newForms = [...forms];
+    newForms[index].fileInput = e.target.files[0];
+    setForms(newForms);
+  };
+
+  const handleAddForm = () => {
+    setForms([...forms, {
+      textInput: '',
+      selectInput: '',
+      fileInput: null,
+      dob: ''
+    }]);
+  };
+
+
+  const handleDeleteForm = (index) => {
+    const newForms = [...forms];
+    newForms.splice(index, 1);
+    setForms(newForms);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Do something with the form data, like sending it to a server
-    console.log(formData);
+    console.log(forms);
   };
 
   return (
     <div className="App">
       <div className="container">
-        <form onSubmit={handleSubmit} style={{ width: '50%', margin: 'auto' }}>
+        <form onSubmit={handleSubmit} style={{ width: '60%', margin: 'auto' }}>
+          <h1>Registration Form</h1>
           <div className="row mb-3">
             <div className="col-md-6">
-              <label htmlFor="firstName" className="form-label">First Name:</label>
+              <label htmlFor="firstName" className="form-label">First Name: <span style={{ color: 'red' }}>*</span></label>
               <input
                 type="text"
                 className="form-control"
                 id="firstName"
                 name="firstName"
-                value={formData.firstName}
-                onChange={handleChange}
+                value={forms.firstName}
+                onChange={handleInputChange}
                 required
               />
             </div>
             <div className="col-md-6">
-              <label htmlFor="lastName" className="form-label">Last Name:</label>
+              <label htmlFor="lastName" className="form-label">Last Name: <span style={{ color: 'red' }}>*</span></label>
               <input
                 type="text"
                 className="form-control"
                 id="lastName"
                 name="lastName"
-                value={formData.lastName}
-                onChange={handleChange}
+                value={forms.lastName}
+                onChange={handleInputChange}
                 required
               />
             </div>
           </div>
           <div className="row mb-3">
             <div className="col-md-6">
-              <label htmlFor="email" className="form-label">Email:</label>
+              <label htmlFor="email" className="form-label">Email: <span style={{ color: 'red' }}>*</span></label>
               <input
                 type="email"
                 className="form-control"
                 id="email"
                 name="email"
-                value={formData.email}
-                onChange={handleChange}
+                value={forms.email}
+                onChange={handleInputChange}
                 required
               />
             </div>
-            <div className="col-md-3">
-              <label htmlFor="dob" className="form-label">Date of Birth:</label>
+            <div className="col-md-6">
+              <label htmlFor="dob" className="form-label">Date of Birth: <span style={{ color: 'red' }}>*</span></label>
               <input
                 type="date"
                 className="form-control"
                 id="dob"
                 name="dob"
-                value={formData.dob}
-                onChange={handleChange}
+                value={forms.dob}
+                onChange={handleInputChange}
                 required
               />
             </div>
           </div>
           <div className="row mb-3">
             <div className="col-md-6">
-              <label htmlFor="street1" className="form-label">Street 1:</label>
+              <label htmlFor="street1" className="form-label">Street 1: <span style={{ color: 'red' }}>*</span></label>
               <input
                 type="text"
                 className="form-control"
                 id="street1"
                 name="street1"
-                value={formData.street1}
-                onChange={handleChange}
+                value={forms.street1}
+                onChange={handleInputChange}
               />
             </div>
             <div className="col-md-6">
-              <label htmlFor="street2" className="form-label">Street 2:</label>
+              <label htmlFor="street2" className="form-label">Street 2: <span style={{ color: 'red' }}>*</span></label>
               <input
                 type="text"
                 className="form-control"
                 id="street2"
                 name="street2"
-                value={formData.street2}
-                onChange={handleChange}
+                value={forms.street2}
+                onChange={handleInputChange}
               />
             </div>
           </div>
@@ -115,8 +156,6 @@ function App() {
                 className="form-check-input"
                 type="checkbox"
                 id="sameAsResidential"
-              // checked={sameAsResidential}
-              // onChange={handleCheckboxChange}
               />
               <label className="form-check-label" htmlFor="sameAsResidential">
                 Same as Residential Address
@@ -128,115 +167,71 @@ function App() {
 
           <div className="row mb-3">
             <div className="col-md-6">
-              <label htmlFor="street1" className="form-label">Street 1:</label>
+              <label htmlFor="street1" className="form-label">Street 1: <span style={{ color: 'red' }}>*</span></label>
               <input
                 type="text"
                 className="form-control"
                 id="street1"
                 name="street1"
-                value={formData.street1}
-                onChange={handleChange}
+                value={forms.street1}
+                onChange={handleInputChange}
               />
             </div>
             <div className="col-md-6">
-              <label htmlFor="street2" className="form-label">Street 2:</label>
+              <label htmlFor="street2" className="form-label">Street 2: <span style={{ color: 'red' }}>*</span></label>
               <input
                 type="text"
                 className="form-control"
                 id="street2"
                 name="street2"
-                value={formData.street2}
-                onChange={handleChange}
+                value={forms.street2}
+                onChange={handleInputChange}
               />
             </div>
           </div>
-          <div className="container">
-            <h5 className="mb-4">Upload Documents</h5>
-            <form onSubmit={handleSubmit}>
-              <div className="row mb-3">
+          <div className="mb-3">
+            <h5>Upload Documents</h5>
+            {forms.map((form, index) => (
+              <div key={index} className="row mb-3">
                 <div className="col-md-4">
-                  <label htmlFor="textInput" className="form-label">Text Input:</label>
                   <input
                     type="text"
                     className="form-control"
-                    id="textInput"
+                    placeholder="Document Name"
+                    value={form.textInput}
+                    onChange={(e) => handleInputChange(e, index)}
                     name="textInput"
-                    value={formData.textInput}
-                  // onChange={handleInputChange}
                   />
                 </div>
                 <div className="col-md-4">
-                  <label htmlFor="selectInput" className="form-label">Select Input:</label>
                   <select
                     className="form-select"
-                    id="selectInput"
+                    value={form.selectInput}
+                    onChange={(e) => handleInputChange(e, index)}
                     name="selectInput"
-                    value={formData.selectInput}
-                  // onChange={handleInputChange}
                   >
-                    <option value="">Select an option...</option>
-                    <option value="option1">Option 1</option>
-                    <option value="option2">Option 2</option>
-                    <option value="option3">Option 3</option>
+                    <option value="">Select Type</option>
+                    <option value="Type 1">Type 1</option>
+                    <option value="Type 2">Type 2</option>
                   </select>
                 </div>
-                <div className="col-md-4">
-                  <label htmlFor="fileInput" className="form-label">File Input:</label>
+                <div className="col-md-3">
                   <input
                     type="file"
                     className="form-control"
-                    id="fileInput"
+                    onChange={(e) => handleFileChange(e, index)}
                     name="fileInput"
-                  // onChange={handleFileChange}
                   />
                 </div>
+                <div className="col-md-1">
+                  {index === forms.length - 1 ? (
+                    <FaPlus onClick={handleAddForm} style={{ cursor: 'pointer' }} />
+                  ) : (
+                    <FaTrash onClick={() => handleDeleteForm(index)} style={{ cursor: 'pointer' }} />
+                  )}
+                </div>
               </div>
-            </form>
-          </div>
-          <form onSubmit={handleSubmit}>
-            <div className="row mb-3">
-              <div className="col-md-4">
-                <label htmlFor="textInput" className="form-label">Text Input:</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="textInput"
-                  name="textInput"
-                  value={formData.textInput}
-                // onChange={handleInputChange}
-                />
-              </div>
-              <div className="col-md-4">
-                <label htmlFor="selectInput" className="form-label">Select Input:</label>
-                <select
-                  className="form-select"
-                  id="selectInput"
-                  name="selectInput"
-                  value={formData.selectInput}
-                // onChange={handleInputChange}
-                >
-                  <option value="">Select an option...</option>
-                  <option value="option1">Option 1</option>
-                  <option value="option2">Option 2</option>
-                  <option value="option3">Option 3</option>
-                </select>
-              </div>
-              <div className="col-md-4">
-                <label htmlFor="fileInput" className="form-label">File Input:</label>
-                <input
-                  type="file"
-                  className="form-control"
-                  id="fileInput"
-                  name="fileInput"
-                // onChange={handleFileChange}
-                />
-              </div>
-            </div>
-          </form>
-          <div className="row mb-3">
-            <div className="col-md-12 d-flex justify-content-center">
-              <button type="submit" className="btn btn-primary" style={{ backgroundColor: 'black' }}>Submit</button>
-            </div>
+            ))}
           </div>
         </form>
       </div>
